@@ -1,17 +1,42 @@
-import wwwauth
+raw_message='''INVITE sip:9999@172.31.20.149:10001 SIP/2.0
+Via: SIP/2.0/UDP 223.130.135.113:5061;branch=z9hG4bK40bc5a44;rport
+Max-Forwards: 70
+From: "01064498979" <sip:01064498979@223.130.135.113:5061>;tag=as16549d66
+To: <sip:9999@172.31.20.149:10001>
+Contact: <sip:01064498979@223.130.135.113:5061>
+Call-ID: 730b38441622c64738f571ed38a6c21d@223.130.135.113:5061
+CSeq: 102 INVITE
+User-Agent: FPBX-12.0.76.6(12.8.0)
+Date: Wed, 20 Sep 2023 06:29:28 GMT
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH, MESSAGE
+Supported: replaces, timer
+Content-Type: application/sdp
+Content-Length: 261
 
-authTools = wwwauth.WWWAuthenticate()
+v=0
+o=root 1188614393 1188614393 IN IP4 223.130.135.113
+s=Asterisk PBX 12.8.0-rc2
+c=IN IP4 223.130.135.113
+t=0 0
+m=audio 13634 RTP/AVP 0 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-16
+a=ptime:20
+a=maxptime:150
+a=sendrecv
+'''
 
-authTools.setNonce("1bd7437f")
-authTools.setUri("sip:223.130.135.113:5061")
+lines = [line.strip().split("=", maxsplit=1) for line in raw_message.split("\n")]
 
-res = authTools.getResonse('9999','3834c7840b10baa98ecad6e6ff9867d2')
+print(lines)
 
-print(res)
+fields_order = ""
+fields = []
 
-
-#4c9d1c6c52eea0d3d5bd840bd59b6042
-#4c9d1c6c52eea0d3d5bd840bd59b6042
-
-#Digest username="9999",realm="asterisk",nonce="15a93a8e",uri="sip:223.130.135.113:5061",response="4c9d1c6c52eea0d3d5bd840bd59b6042",algorithm=MD5
-#Digest username="9999",realm="asterisk",nonce="7bd16a01",uri="sip:223.130.135.113:5061",response="9d32addabede40b91176b9229904147f",algorithm=MD5
+for line in lines:
+    if 1 != len(line[0]):
+        continue
+    name, value = line[0], line[1]
+    fields_order += name
+    fields.append(FieldRaw(name, value))

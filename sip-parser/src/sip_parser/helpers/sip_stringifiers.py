@@ -3,7 +3,6 @@ import re
 
 
 def stringify_params(params: List):
-    print(params)
     params_str = ""
     for key, val in params.items():
         params_str += f";{key}"

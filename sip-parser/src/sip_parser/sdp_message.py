@@ -38,6 +38,8 @@ class SdpMessage:
         fields_order = ""
         fields = []
         for line in lines:
+            if 1 != len(line[0]):
+                continue
             name, value = line[0], line[1]
             fields_order += name
             fields.append(FieldRaw(name, value))

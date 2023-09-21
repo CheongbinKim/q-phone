@@ -3,6 +3,9 @@ import random
 import string
 import socket 
 import wwwauth
+import os
+
+from klogging import *
 
 class Register:
     def __init__(self,sock,username,password,host,port):
@@ -68,7 +71,7 @@ class Register:
                             "scheme":"sip",
                             "user":self.username,
                             "host":socket.gethostbyname(socket.gethostname()),
-                            "port":10001
+                            "port":os.getenv('PORT',10001)
                         }
                     },
                     "allow":"ACK,BYE,CANCEL,INVITE,REGISTER,UPDATE,MESSAGE,INFO,OPTIONS,SUBSCRIBE,NOTIFY,REFER,COMET,PUBLISH,PING,DO,SHAREDFN",
@@ -82,12 +85,9 @@ class Register:
             }
         )
 
-        sendBytes = str.encode(msg.stringify())
-        
-        #sendBytes = str.encode(test)
+        debug(msg.stringify())
 
-        #sendSock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        #sendSock.bind((self.localhost,self.localport))
+        sendBytes = str.encode(msg.stringify())
 
         self.sock.sendto(sendBytes,(self.host,self.port))
 
@@ -97,8 +97,6 @@ class Register:
 
         sipMsg = sip_message.SipMessage.from_string(recvData)
 
-        print(sipMsg.headers['www-authenticate'])
-
         nonce = sipMsg.headers['www-authenticate'][0]['nonce']
 
         wauth = wwwauth.WWWAuthenticate()
@@ -106,7 +104,7 @@ class Register:
         wauth.setNonce(nonce)
 
         uri = f"sip:{self.host}:{self.port}"
-        wauth.setUri("sip:223.130.135.113:5061")
+        wauth.setUri(uri)
 
         wauthRes = wauth.getResonse(self.username,self.password)
 
@@ -143,14 +141,13 @@ class Register:
                     },
                     "max-Forwards":70,
                     "call-id":self.callId,
-                    #"call-id":"81033714372331641429612113113278b33",
                     "cSeq":f"{self.cSeq+1} REGISTER",
                     "contact":{
                         "uri":{
                             "scheme":"sip",
                             "user":self.username,
                             "host":socket.gethostbyname(socket.gethostname()),
-                            "port":10001
+                            "port":os.getenv('PORT',10001)
                         }
                     },
                     "authorization":{
@@ -173,34 +170,10 @@ class Register:
             }
         )
 
-        # msg.headers['authorization'] = [{
-        #     'username':f'"{self.username}"',
-        #     'scheme':'Digest',
-        #     'nonce': nonce,
-        #     'realm':f'"asterisk"',
-        #     'algorithm':'MD5',
-        #     'response': f'"{wauthRes}"',
-        #     'uri':f'"{uri}"'
-        # }]
+        debug(msg.stringify())
 
-        #msg.headers['cSeq'] = f"{self.cSeq+1} REGISTER"
-        
-        
-        #msg = sip_message.SipMessage.from_string(msg.stringify())
-
-        print(msg.stringify())
-        
         sendBytes = str.encode(msg.stringify())
         self.sock.sendto(sendBytes,(self.host,self.port))
-
-        
-        recvData,recvAddr = self.sock.recvfrom(self.bufferSize)
-
-        recvData = recvData.decode('UTF-8')
-
-        sipMsg = sip_message.SipMessage.from_string(recvData)
-
-        print(sipMsg.stringify())
         
 
 

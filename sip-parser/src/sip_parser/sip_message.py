@@ -127,6 +127,7 @@ class SipMessage:
 
         # Is it a response?
         response_parsed = parse_response(lines)
+
         if response_parsed:
             # Yes, it is a response
             message.type = message.TYPE_RESPONSE
