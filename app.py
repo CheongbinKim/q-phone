@@ -23,7 +23,7 @@ def handler(signum, frame):
 signal.signal(signal.SIGTERM, handler)
 
 def getShufflePort(start,end):
-    port_range = list(range(10000,20000))
+    port_range = list(range(start,end))
 
     random.shuffle(port_range)
 
