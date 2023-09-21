@@ -9,6 +9,8 @@ class Env():
         self.HOST = os.environ.get('HOST','0.0.0.0')
         self.PORT = os.environ.get('PORT',5080)
         self.EXTERNAL_ADDRESS = os.environ.get('EXTERNAL_ADDRESS',self.getExternalIpAddress())
+        self.RTP_PORT_START = os.environ.get('RTP_PORT_START',10000)
+        self.RTP_PORT_END = os.environ.get('RTP_PORT_END',20000)
 
         if os.environ.get('USERNAME') is None:
             warning('USERNAME is None, e.g.) export USERNAME=9999')

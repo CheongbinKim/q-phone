@@ -22,7 +22,7 @@ def handler(signum, frame):
         sys.exit(1)
 signal.signal(signal.SIGTERM, handler)
 
-def getShufflePort():
+def getShufflePort(start,end):
     port_range = list(range(10000,20000))
 
     random.shuffle(port_range)
@@ -32,8 +32,8 @@ def getShufflePort():
 def startSIPServer():
     env = Env()
 
-    localIP     = "0.0.0.0"
-    localPort   = os.getenv('PORT',10001)
+    localIP     = env.HOST
+    localPort   = env.PORT
     bufferSize  = 1200 # SIP packets will be between 500-1200 bytes
 
     calls = []
@@ -64,13 +64,14 @@ def startSIPServer():
                 # SDP 추출
                 sdpMsg = sdp_message.SdpMessage.from_string(sipMsg.content)
 
-                rtpPort = getShufflePort()
+                rtpPort = getShufflePort(env.RTP_PORT_START,env.RTP_PORT_END)
 
                 # Media Channel 생성
                 t = RtpServer(sipMsg,sdpMsg,rtpPort)
                 t.start()
                 calls.append(t)
 
+                info("200 OK" + user_number)
                 inviteOk(server,sipMsg,env.EXTERNAL_ADDRESS, rtpPort)
             elif sipMsg.method == 'ACK':
                 info("ACK" + user_number)
