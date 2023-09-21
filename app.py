@@ -3,6 +3,7 @@ import re
 import os
 import sys
 import signal
+import random
 
 from rtpserver import RtpServer
 from sip_parser import sip_message
@@ -21,6 +22,12 @@ def handler(signum, frame):
         sys.exit(1)
 signal.signal(signal.SIGTERM, handler)
 
+def getShufflePort():
+    port_range = list(range(10000,20000))
+
+    random.shuffle(port_range)
+
+    return port_range[0]
 
 def startSIPServer():
     env = Env()
@@ -57,15 +64,16 @@ def startSIPServer():
                 # SDP 추출
                 sdpMsg = sdp_message.SdpMessage.from_string(sipMsg.content)
 
+                rtpPort = getShufflePort()
+
                 # Media Channel 생성
-                t = RtpServer(sipMsg,sdpMsg)
+                t = RtpServer(sipMsg,sdpMsg,rtpPort)
                 t.start()
                 calls.append(t)
-                    
-                inviteOk(server,sipMsg)
+
+                inviteOk(server,sipMsg,env.EXTERNAL_ADDRESS, rtpPort)
             elif sipMsg.method == 'ACK':
                 info("ACK" + user_number)
-                info(sipMsg.stringify())
             elif sipMsg.method == 'BYE':
                 info("BYE" + user_number)
                 inviteByeOk(server,sipMsg)

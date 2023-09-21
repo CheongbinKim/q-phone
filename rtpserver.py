@@ -4,11 +4,11 @@ import threading, requests, time
 from klogging import *
 
 class RtpServer(threading.Thread):
-    def __init__(self,sip,sdp):
+    def __init__(self,sip,sdp,rtpPort):
         threading.Thread.__init__(self)
         if len(sdp.media_descriptions) > 0:
-            localIP     = "0.0.0.0"
-            localPort = 12345
+            localIP = "0.0.0.0"
+            localPort = rtpPort
             self.bufferSize  = 172
 
             self.server = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
