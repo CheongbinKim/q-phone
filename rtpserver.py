@@ -32,6 +32,9 @@ class RtpServer(threading.Thread):
                 break
             
             vm.receivePacket(data)
+
+            # echo tests 
+            #self.server.sendto(data,self.caller_address)
             #print(data)
 
  
