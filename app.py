@@ -54,30 +54,33 @@ def startSIPServer():
 
         data = data.decode('UTF-8')
 
-        sipMsg = sip_message.SipMessage.from_string(data)
+        sip_msg = sip_message.SipMessage.from_string(data)
 
-        if sipMsg.type == 0:
-            user_number = sipMsg.headers['from']['name']
-            if sipMsg.method == 'INVITE':
-                info("INVITE" + user_number)
+        if sip_msg.type == 0:
+            caller_number = sip_msg.headers['from']['name']
+            
+            if sip_msg.method == 'INVITE':
+                info("INVITE" + caller_number)
                 
                 # SDP 추출
-                sdpMsg = sdp_message.SdpMessage.from_string(sipMsg.content)
+                sdp_msg = sdp_message.SdpMessage.from_string(sip_msg.content)
 
-                rtpPort = getShufflePort(env.RTP_PORT_START,env.RTP_PORT_END)
+                rtp_port = getShufflePort(env.RTP_PORT_START,env.RTP_PORT_END)
+                
+                caller_address = (sdp_msg.session_description_fields["c"].connection_address,sdp_msg.media_descriptions[0].media.port)
 
                 # Media Channel 생성
-                t = RtpServer(sipMsg,sdpMsg,rtpPort)
+                t = RtpServer(caller_number, caller_address,rtp_port)
                 t.start()
                 calls.append(t)
 
-                info("200 OK" + user_number)
-                inviteOk(server,sipMsg,env.EXTERNAL_ADDRESS, rtpPort)
-            elif sipMsg.method == 'ACK':
-                info("ACK" + user_number)
-            elif sipMsg.method == 'BYE':
-                info("BYE" + user_number)
-                inviteByeOk(server,sipMsg)
+                info("200 OK" + caller_number)
+                inviteOk(server,sip_msg,env.EXTERNAL_ADDRESS, rtp_port)
+            elif sip_msg.method == 'ACK':
+                info("ACK" + caller_number)
+            elif sip_msg.method == 'BYE':
+                info("BYE" + caller_number)
+                inviteByeOk(server,sip_msg)
 
 if __name__ == "__main__":
     startSIPServer()

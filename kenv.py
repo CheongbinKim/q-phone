@@ -4,6 +4,8 @@ import sys
 import urllib.request
 import re
 
+from klogging import *
+
 class Env():
     def __init__(self):
         self.HOST = os.environ.get('HOST','0.0.0.0')
